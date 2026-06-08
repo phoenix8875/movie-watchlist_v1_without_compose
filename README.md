@@ -101,6 +101,7 @@ docker network ls
 <p align="center">
   <img src="./screenshots/watchlist-net.png" alt="network bridge" width="850" style="border-radius: 6px; border: 1px solid #ddd;"/>
 </p>
+
 ### Step 2: Build the Custom Application Images
 
 Compile the local backend application logic and frontend Nginx configuration blueprints into local immutable Docker images:
@@ -145,9 +146,9 @@ docker run -d \
   -p 80:80 \
   watchlist-frontend
 ```
-- **network watchlist-net on backend only: The backend needs to talk to the postgres-db container, which lives inside the private watchlist-net bridge. The frontend never talks to the database — it just serves static files to the browser — so it has no reason to join that network.
+- network watchlist-net on backend only: The backend needs to talk to the postgres-db container, which lives inside the private watchlist-net bridge. The frontend never talks to the database — it just serves static files to the browser — so it has no reason to join that network.
 
-- **5000:5000 and -p 80:80: Format is HOST_PORT:CONTAINER_PORT. This punches a hole in the EC2 firewall and maps external traffic arriving on the host port to the container's internal port. So :80 on your EC2 IP forwards into Nginx, and :5000 forwards into Node.js — without this flag, those containers are unreachable from outside.
+- 5000:5000 and -p 80:80: Format is HOST_PORT:CONTAINER_PORT. This punches a hole in the EC2 firewall and maps external traffic arriving on the host port to the container's internal port. So :80 on your EC2 IP forwards into Nginx, and :5000 forwards into Node.js — without this flag, those containers are unreachable from outside.
 ---
 
 ## 🔍 Verification & Performance Diagnostic Checks
