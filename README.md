@@ -115,9 +115,6 @@ Run these validation commands on your host server to verify the operational stat
 docker ps
 ```
 Expected output
-
-
-CONTAINER ID   IMAGE                COMMAND                  CREATED             STATUS             PORTS                                         NAMES
-973da2154280   watchlist-backend    "docker-entrypoint.s…"   About an hour ago   Up About an hour   0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp   watchlist-backend
-11b9b56ea70b   postgres:15-alpine   "docker-entrypoint.s…"   About an hour ago   Up About an hour   5432/tcp                                      postgres-db
-f34ea6df468c   watchlist-frontend   "/docker-entrypoint.…"   2 hours ago         Up 2 hours         0.0.0.0:80->80/tcp, [::]:80->80/tcp           watchlist-frontend
+<p align="center">
+  <img src="./screenshots/docker-ps.png" alt="docker ps" width="850" style="border-radius: 6px; border: 1px solid #ddd;"/>
+</p>
