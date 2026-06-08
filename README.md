@@ -98,7 +98,9 @@ Before spinning up containers, initialize the custom bridge network router so th
 docker network create watchlist-net
 docker network ls
 ```
-
+<p align="center">
+  <img src="./screenshots/watchlist-net.png" alt="network bridge" width="850" style="border-radius: 6px; border: 1px solid #ddd;"/>
+</p>
 ### Step 2: Build the Custom Application Images
 
 Compile the local backend application logic and frontend Nginx configuration blueprints into local immutable Docker images:
