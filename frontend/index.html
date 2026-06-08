@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3 Tier Docker App for Movie Watchlist</title>
+    <style>
+        /* Base page styling setup */
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 40px 20px;
+            background: #f4f4f9; 
+            color: #333; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* Split-window layout wrapper */
+        .workspace-wrapper {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 30px;
+            width: 100%;
+            max-width: 1100px;
+            margin-top: 20px;
+        }
+        
+        /* Left Window: Application Box */
+        .container { 
+            flex: 1;
+            min-width: 450px;
+            max-width: 520px;
+            background: white; 
+            padding: 25px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            box-sizing: border-box; 
+        }
+        .app-title { 
+            margin-top: 0; 
+            color: #2c3e50; 
+            font-size: 22px; 
+            text-align: center; 
+            margin-bottom: 20px; 
+            border-bottom: 2px solid #007bff; 
+            padding-bottom: 10px; 
+            font-weight: bold; 
+        }
+        
+        /* Input Row Wrapper */
+        .input-group { 
+            display: flex; 
+            gap: 10px; 
+            width: 100%; 
+            margin-bottom: 20px; 
+            box-sizing: border-box; 
+        }
+        input { 
+            flex: 1; 
+            padding: 12px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            font-size: 14px; 
+        }
+        button { 
+            padding: 12px 20px; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 14px; 
+            font-weight: bold; 
+        }
+        button:hover { background: #0056b3; }
+        
+        /* Dynamic Movie List */
+        ul { list-style-type: none; padding: 0; margin: 0; width: 100%; }
+        li { 
+            padding: 12px; 
+            background: #f8f9fa; 
+            margin-bottom: 8px; 
+            border-radius: 4px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-left: 4px solid #007bff; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+        }
+        li span { font-size: 15px; font-weight: 500; color: #333; }
+        .delete-btn { 
+            background: transparent; 
+            color: #e74c3c; 
+            border: none; 
+            font-size: 16px; 
+            cursor: pointer; 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+        }
+        .delete-btn:hover { background: rgba(231, 76, 60, 0.1); }
+        
+        /* Right Window: Architecture Diagram Box */
+        .arch-container { 
+            flex: 1;
+            min-width: 450px;
+            max-width: 520px;
+            background: #1e1e24; 
+            color: #f8f9fa; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); 
+            font-family: 'Courier New', Courier, monospace; 
+            box-sizing: border-box; 
+        }
+        .arch-title { 
+            margin-top: 0; 
+            border-bottom: 1px solid #444; 
+            padding-bottom: 8px; 
+            color: #61dafb; 
+            font-size: 13px; 
+            text-align: center; 
+            letter-spacing: 1px; 
+            font-weight: bold; 
+        }
+        .flow-diagram { display: flex; flex-direction: column; gap: 10px; align-items: center; font-size: 11px; margin-top: 15px; }
+        .node { padding: 8px 12px; border-radius: 4px; text-align: center; width: 90%; border: 1px solid #555; box-sizing: border-box; }
+        .browser-node { background: #2c3e50; border-color: #34495e; }
+        .nginx-node { background: #1b4d3e; border-color: #27ae60; }
+        .backend-node { background: #4a2840; border-color: #9b59b6; }
+        .db-node { background: #1a365d; border-color: #2980b9; }
+        .arrow { color: #f1c40f; font-weight: bold; font-size: 11px; }
+        .highlight { color: #f1c40f; font-weight: bold; }
+
+        /* Responsive scaling down for smaller screens */
+        @media (max-width: 950px) {
+            .workspace-wrapper { flex-direction: column; align-items: center; }
+            .container, .arch-container { max-width: 100%; min-width: 100%; width: 500px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="workspace-wrapper">
+        
+        <div class="container">
+            <div class="app-title">3 Tier Docker App for Movie Watchlist</div>
+            <div class="input-group">
+                <input type="text" id="movieInput" placeholder="Enter movie title...">
+                <button onclick="addMovie()">Add Movie</button>
+            </div>
+            <ul id="movieList"></ul>
+        </div>
+
+        <div class="arch-container">
+            <div class="arch-title">⚙️ LIVE COMPONENT INTERACTION FLOW ⚙️</div>
+            <div class="flow-diagram">
+                <div class="node browser-node">
+                    <strong>[ Your Browser ]</strong><br>
+                    Executes script.js locally in RAM<br>
+                    <span class="highlight">Sends Data -> EC2 Public Port 5000</span>
+                </div>
+                <div class="arrow">│</div>
+                <div class="arrow">▼ (Public Internet Traffic)</div>
+                <div class="node nginx-node">
+                    <strong>[ Frontend Container: Nginx ]</strong><br>
+                    Container Name: <span class="highlight">watchlist-frontend</span><br>
+                    Maps: Host Port 80 -> Container Port 80<br>
+                    <em>*Delivered the HTML/JS files to your client</em>
+                </div>
+                <div class="arrow">│</div>
+                <div class="arrow">▼ (Data bypasses Nginx direct to API)</div>
+                <div class="node backend-node">
+                    <strong>[ Backend Container: Node.js API ]</strong><br>
+                    Container Name: <span class="highlight">watchlist-backend</span><br>
+                    Maps: Host Port 5000 -> Container Port 5000<br>
+                    <em>*Validates request & constructs SQL queries</em>
+                </div>
+                <div class="arrow">│</div>
+                <div class="arrow">▼ (Internal Network: watchlist-net)</div>
+                <div class="node db-node">
+                    <strong>[ Database Container: PostgreSQL ]</strong><br>
+                    Container Name: <span class="highlight">postgres-db</span><br>
+                    Internal Port: 5432 <span class="highlight">(Host Port: CLOSED)</span><br>
+                    <em>*Permanently saves data record to disk</em>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
