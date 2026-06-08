@@ -75,10 +75,10 @@ The workspace features a responsive **split-window layout**: the left panel hand
 
 For the application to accept traffic properly, your EC2 Instance's **Inbound Security Group Rules** must map the exposed application ports.
 
-- **Port 22 (SSH):** Open to your personal IP (For terminal administration).
-- **Port 80 (HTTP):** Open to `0.0.0.0/0` (Allows clients to load the interface).
-- **Port 5000 (Custom TCP):** Open to `0.0.0.0/0` (Allows client-side JS to process actions against the API).
-- **Port 5432 (PostgreSQL):** **Keep completely closed.** Docker manages this communication path internally.
+- Port 22 (SSH):** Open to your personal IP (For terminal administration).
+- Port 80 (HTTP):** Open to `0.0.0.0/0` (Allows clients to load the interface).
+- Port 5000 (Custom TCP):** Open to `0.0.0.0/0` (Allows client-side JS to process actions against the API).
+- Port 5432 (PostgreSQL):** **Keep completely closed.** Docker manages this communication path internally.
 
 <p align="center">
   <img src="./screenshots/aws_inbound_rules.png" alt="AWS Security Group Inbound Rules Configuration" width="850" style="border-radius: 6px; border: 1px solid #ddd;"/>
