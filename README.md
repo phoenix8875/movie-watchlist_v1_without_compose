@@ -20,6 +20,44 @@ The workspace features a responsive **split-window layout**: the left panel hand
 4. **Isolated Database Transaction:** The Node.js container (`watchlist-backend`) receives the data and passes a SQL command over a custom, private virtual network (`watchlist-net`) to the PostgreSQL container (`postgres-db`) on internal **Port 5432**.
 
 ---
+### 🔀 Network Flow Diagram
+
+```
+                        ┌─────────────────────────────────────────────────────────────┐
+                        │                   ☁️  AWS EC2 Instance                      │
+                        │                                                             │
+  👤 User Browser       │   📦 watchlist-frontend        📦 watchlist-backend        │
+  (Public Internet)     │      nginx:alpine                 node:20-alpine            │
+                        │      [Custom Build]               [Custom Build]            │
+  ── ① HTTP :80 ──────────────────────►│                         │                   │
+  ◄─ ② Serves HTML/JS ─────────────────│                         │                   │
+                        │               │  (JS now runs locally   │                   │
+                        │               │   in browser RAM)       │                   │
+                        │                                         │                   │
+  ── ③ API Call :5000 ──────────────────────────────────────────►│                   │
+                        │                                         │                   │
+                        │               ╔═════════════════════════╪═══════════════╗   │
+                        │               ║   🔒 watchlist-net      │               ║   │
+                        │               ║   (Private Bridge)      │               ║   │
+                        │               ║                         ▼               ║   │
+                        │               ║              📦 postgres-db             ║   │
+                        │               ║              postgres:15-alpine         ║   │
+                        │               ║         ④ SQL over :5432 (internal)    ║   │
+                        │               ║           [No host port exposed]        ║   │
+                        │               ╚════════════════════════════════════════╝   │
+                        └─────────────────────────────────────────────────────────────┘
+
+  ①  Browser requests UI assets over public HTTP (Port 80)
+  ②  Nginx serves static index.html + script.js — one-time delivery
+  ③  Every user action (add/delete/fetch) hits the Node.js API directly (Port 5000)
+  ④  Backend forwards SQL commands to PostgreSQL over the private Docker bridge only
+```
+
+> 💡 **Note:** After the initial page load, the frontend container is out of the picture. All data flow runs directly between the user's browser and the backend API.
+
+---
+
+
 
 ## ⚙️ Component Matrix & Network Blueprint
 
@@ -77,6 +115,8 @@ docker build -t watchlist-frontend frontend/
 
 Spin up the PostgreSQL data engine. We feed our authentication keys safely through an environment file wrapper without exposing port 5432 to the host:
 
+> 📦 **No build step needed here.** Unlike the frontend and backend, `postgres-db` uses the **official `postgres:15-alpine` image pulled directly from Docker Hub** — there is no custom code to compile. Docker will automatically pull it on first run if not already cached locally.
+
 ```bash
 docker run -d \
   --name postgres-db \
@@ -109,6 +149,7 @@ docker run -d \
 ## 🔍 Verification & Performance Diagnostic Checks
 
 Run these validation commands on your host server to verify the operational state of the 3-tier matrix:
+
 
 ```bash
 # Check runtime health across the cluster
